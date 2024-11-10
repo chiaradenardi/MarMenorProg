@@ -4,19 +4,26 @@ import Link from 'next/link';
 
 export default function Navbar() {
   return (
-    <nav style={{ display: 'flex', justifyContent:'center', alignContent:'center', gap: '1rem', padding: '1rem', backgroundColor: '#f0f0f0' }}>
+    <nav className='flex w-full justify-around items-center h-16 bg-gray-100'>
 
-      <Link href="/" passHref>
-        <button>Home</button>
+      <Link href="/" passHref className='flex-1 h-full flex justify-center items-center text-center py-2 hover:bg-gray-200 transition-colors cursor-pointer'>
+        <div>
+          Home
+        </div>
       </Link>
 
-      <Link href="/about" passHref>
-        <button>About</button>
+      <Link href="/about" passHref className='flex-1 h-full flex justify-center items-center text-center py-2 hover:bg-gray-200 transition-colors cursor-pointer'>
+        <div>
+          About
+        </div>
       </Link>
 
-      <Link href="/chatbot" passHref>
-        <button>ChatBot</button>
+      <Link href="/chatbot" passHref className='flex-1 h-full flex justify-center items-center text-center py-2 hover:bg-gray-200 transition-colors cursor-pointer'>
+        <div >
+          ChatBot
+        </div>
       </Link>
+
 
     </nav>
   );

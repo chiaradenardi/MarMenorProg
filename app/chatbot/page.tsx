@@ -1,9 +1,11 @@
 //app/chatbot/page.tsx -->chatbot
 
-export default function Chat(){
+const ChatBot = () => {
     return(
-        <div>
-            <h1>Pagina della chatbot</h1>
+        <div className="p-8">
+            <h1 className="text-4xl font-bold mb-2">Pagina della chatbot</h1>
         </div>
     );
-}
+};
+
+export default ChatBot;
