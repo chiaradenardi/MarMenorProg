@@ -1,3 +1,5 @@
+"use server";
+
 export const fetchWetData = async (start: string, end: string) => {
     const formattedStart = `${start}T00:00:00Z`;
     const formattedEnd = `${end}T23:59:59Z`;

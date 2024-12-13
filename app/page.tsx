@@ -23,7 +23,7 @@ const Page = () => {
       {/*form per selezionare le date */}
       <form
         onSubmit={(e) => {
-          e.preventDefault();
+          e.preventDefault();//non refresha la pagina così
           handleFetchData();
         }}
         className="mb-8"
@@ -61,6 +61,7 @@ const Page = () => {
           <h1 className="text-lg mb-8">Dati per {data.name}</h1>
           <h1 className="text-lg mb-8">Unità: {data.unit}</h1>
           <ul>
+            {/*itera per ogni time all'intero del range start date-end date; per ogni time poi itera ogni valore di prof e temp */}
             {data.data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) => (
               <li key={index}>
                 <strong>Tempo:</strong> {entry.time}
