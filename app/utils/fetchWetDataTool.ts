@@ -1,4 +1,4 @@
-// utils/fetchWetDataTool.ts
+// app/utils/fetchWetDataTool.ts
 import { fetchWetData } from "./fetchWet2d";
 
 export const fetchWetDataTool = async (start: string, end: string) => {

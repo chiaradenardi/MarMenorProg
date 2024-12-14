@@ -30,22 +30,24 @@ export const fetchWetData = async (start: string, end: string) => {
     };
   
     try {
-        const response = await fetch("http://test.asap-forecast.com:8081/graphql", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query, variables }),
-        });
-      
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      
-        const result = await response.json();
-        return result.data;
-      } catch (error) {
-        console.error("Errore durante il fetch:", error);
-        throw error;
+      const response = await fetch("http://test.asap-forecast.com:8081/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, variables }),
+      });
+    
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Errore dalla API:", errorText);  // Log dettagliato dell'errore
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+    
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Errore durante il fetch:", error);
+      throw error;
+    }    
       
   };
   

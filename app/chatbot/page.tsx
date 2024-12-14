@@ -13,7 +13,6 @@ const ChatPage: FC = () => {
       console.error("Errore nella chat:", error.message || error);
     }
   }, [error]);
-  
 
   return (
     <div className="flex flex-col h-screen">
@@ -54,15 +53,18 @@ const ChatMessage: FC<{ message: any; isLoading: boolean }> = ({ message, isLoad
     <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} my-2`}>
       <div
         className={`px-4 py-2 rounded-lg ${
-          message.role === "user"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-200 text-black"
+          message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
         }`}
       >
-        {isLoading && message.role === "assistant" ? "Scrivendo..." : message.content}
+        {isLoading && message.role === "assistant"
+          ? "Sto recuperando i dati..."
+          : message.content}
       </div>
     </div>
   );
 };
+
+
+
 
 export default ChatPage;
