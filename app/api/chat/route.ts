@@ -1,93 +1,118 @@
-import { openai } from "@ai-sdk/openai"; 
-import { convertToCoreMessages, streamText } from "ai"; 
+import { openai } from "@ai-sdk/openai";
+import { convertToCoreMessages, streamText } from "ai";
 import { fetchWetData } from "@/app/utils/fetchWet2d"; 
 
-//definisce la struttura di un messaggio
+// Definisce la struttura di un messaggio
 interface Message {
-  content: string; //contenuto del messaggio
-  role: "user" | "system" | "assistant"; //ruolo del messaggio (utente, sistema, assistente)
-  id: string; //ID univoco del messaggio
+  content: string; // Contenuto del messaggio
+  role: "user" | "system" | "assistant"; // Ruolo del messaggio (utente, sistema, assistente)
+  id: string; // ID univoco del messaggio
 }
 
 const model = openai("gpt-4o-mini");
 
-//prompt iniziale per il modello col suo comportamento
+// Prompt iniziale per il modello col suo comportamento
 const systemPrompt = 
   "You are a friendly CLI interface with some tools up your sleeve. You can fetch wet data on temperature by using the wet2d tool.";
 
-export const POST = async (req: Request) => {
-  console.log("Richiesta ricevuta!"); 
-
-  //parsing del corpo della richiesta per ottenere i messaggi
-  const { messages }: { messages: Message[] } = await req.json(); //parsing del JSON in arrivo
-  console.log("Messaggi ricevuti:", messages); 
-
-  //controllo se uno dei messaggi contiene una richiesta di dati meteo
-  const wetDataQuery = messages.find((message) => message.content.includes("wet data"));
-  console.log("Controllo per richiesta dati meteo:", wetDataQuery); 
-
-  if (wetDataQuery) {
-    console.log("Richiesta di dati meteo:", wetDataQuery.content); 
-
-    //estrazione delle date dalla richiesta
-    const dates = extractDatesFromMessage(wetDataQuery.content);
-    
-    if (dates) {
-      try {
-        //recupero dei dati meteo utilizzando le date estratte
-        const data = await fetchWetData(dates.start, dates.end);
-
-        //serializzazione dei dati meteo per garantire la corretta restituzione
-        const serializedData = {
-          ...data,
-          wet2d: {
-            ...data.wet2d,
-            data: data.wet2d.data.map((item: any) => JSON.stringify(item)) //conversione degli elementi in stringhe
-          }
-        };
-
-        console.log("Dati meteo serializzati:", serializedData); 
-        return new Response(JSON.stringify({ data: serializedData }), { status: 200 }); //restituzione dei dati meteo
-      } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error); 
-        return new Response(JSON.stringify({ error: "Non sono riuscito a recuperare i dati meteo." }), { status: 500 });
-      }
-    } else {
-      //rrrore se le date non possono essere estratte
-      return new Response(JSON.stringify({ error: "Non sono riuscito a capire le date richieste." }), { status: 400 });
+  export const POST = async (req: Request) => {
+    const body = await req.json();
+    console.log("Corpo della richiesta ricevuta:", body);
+  
+    const { messages }: { messages: Message[] } = body;
+    console.log("Messaggi estratti:", messages);
+  
+    if (!messages || !Array.isArray(messages)) {
+      console.error("Errore: 'messages' non è un array valido!", messages);
+      return new Response(JSON.stringify({ error: "Formato messaggi non valido" }), { status: 400 });
     }
+  
+    const wetDataQuery = messages.find((message) => message.content.includes("temperatura"));
+    console.log("Messaggio che richiede temperatura:", wetDataQuery);
+  
+    if (wetDataQuery) {
+      const dates = extractDatesFromMessage(wetDataQuery.content); // Estrai le date dal messaggio
+      
+      if (dates) {
+        const { start, end } = dates;
+        
+        if (start && end) {
+          // Chiama la funzione per recuperare i dati meteo
+          const temperatureData = await fetchWetData(start, end);
+          
+          console.log("Dati temperatura ricevuti:", temperatureData);
+          
+          // Controlla se i dati sono validi
+          if (
+            typeof temperatureData === "object" &&
+            temperatureData.min_temperature !== undefined &&
+            temperatureData.max_temperature !== undefined
+          ) {
+            const responseContent = `La temperatura minima dal ${start} al ${end} è di ${temperatureData.min_temperature}°C, mentre la temperatura massima è di ${temperatureData.max_temperature}°C.`;
+            return new Response(
+              JSON.stringify({
+                messages: [
+                  {
+                    role: "assistant",
+                    content: responseContent,
+                  },
+                ],
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } }
+            );
+          } else {
+            console.error("Errore nei dati di temperatura:", temperatureData);
+            return new Response(
+              JSON.stringify({
+                messages: [
+                  {
+                    role: "assistant",
+                    content: "Si è verificato un errore nel recupero dei dati meteo. Riprova più tardi.",
+                  },
+                ],
+              }),
+              { status: 400, headers: { "Content-Type": "application/json" } }
+            );
+          }
+        } else {
+          console.error("Date trovate ma non valide:", dates);
+          return new Response(
+            JSON.stringify({ messages: [{ role: "assistant", content: "Non sono stati trovati parametri validi per data." }] }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        console.error("Nessuna data trovata nel messaggio.");
+        return new Response(
+          JSON.stringify({ messages: [{ role: "assistant", content: "Date non trovate nel messaggio." }] }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+    
+  
+    // Se non ci sono richieste meteo, continua con il comportamento predefinito dell'AI
+    const result = await streamText({
+      model,
+      system: systemPrompt,
+      messages: convertToCoreMessages(messages),
+    });
+  
+    return result.toDataStreamResponse();
+  };
+  
+  function extractDatesFromMessage(message: string) {
+    console.log("Tentativo di estrazione date dal messaggio:", message);
+  
+    const regex = /(?:dal|from)\s*(\d{4}-\d{2}-\d{2})\s*(?:al|to)\s*(\d{4}-\d{2}-\d{2})/i;
+    const match = message.match(regex);
+  
+    if (match) {
+      console.log("Date trovate:", { start: match[1], end: match[2] });
+      return { start: match[1], end: match[2] };
+    }
+  
+    console.error("Nessun match per le date trovato nel messaggio:", message);
+    return null;
   }
-
-  //caso in cui non ci sia una richiesta di dati meteo: continua con la gestione standard
-  console.log("Nessuna richiesta meteo, procedo con la risposta AI...");
-
-  //converti i messaggi in un formato accettato dal modello AI
-  const result = await streamText({
-    model, //modello da utilizzare
-    system: systemPrompt, //prompt iniziale
-    messages: convertToCoreMessages(messages), //conversione dei messaggi in formato standard
-  });
-
-  console.log("Messaggi convertiti per AI:", convertToCoreMessages(messages)); 
-  console.log("Risultato finale della risposta:", result); 
-
-  //restituzione della risposta come stream per il frontend
-  return result.toDataStreamResponse();
-};
-
-//funzione per estrarre le date da una richiesta testuale
-function extractDatesFromMessage(message: string) {
-  console.log("Estrazione date dal messaggio:", message); 
-
-  //regex per trovare le date nel formato "from YYYY-MM-DD to YYYY-MM-DD"
-  const regex = /from (\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/;
-  const match = message.match(regex); //ricerca del pattern nel messaggio
-
-  if (match) {
-    console.log("Match trovato:", match); 
-    return { start: match[1], end: match[2] }; //restituzione delle date estratte
-  }
-
-  console.log("Nessun match trovato."); 
-  return null; 
-}
+  
