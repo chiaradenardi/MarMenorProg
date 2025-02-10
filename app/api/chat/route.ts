@@ -1,87 +1,93 @@
-import { openai } from "@ai-sdk/openai";
-import { convertToCoreMessages, streamText } from "ai";
-import { fetchWetData } from "@/app/utils/fetchWet2d";  
+import { openai } from "@ai-sdk/openai"; 
+import { convertToCoreMessages, streamText } from "ai"; 
+import { fetchWetData } from "@/app/utils/fetchWet2d"; 
 
+//definisce la struttura di un messaggio
 interface Message {
-  content: string;
-  role: "user" | "system" | "assistant";
-  id: string;
+  content: string; //contenuto del messaggio
+  role: "user" | "system" | "assistant"; //ruolo del messaggio (utente, sistema, assistente)
+  id: string; //ID univoco del messaggio
 }
 
 const model = openai("gpt-4o-mini");
+
+//prompt iniziale per il modello col suo comportamento
 const systemPrompt = 
-"You are a friendly CLI interface with some tools up your sleeve. You can fetch wet data on temperature by using the wet2d tool."
-;
+  "You are a friendly CLI interface with some tools up your sleeve. You can fetch wet data on temperature by using the wet2d tool.";
 
 export const POST = async (req: Request) => {
-  console.log("Richiesta ricevuta!"); // Log per confermare che la richiesta è arrivata
+  console.log("Richiesta ricevuta!"); 
 
-  const { messages }: { messages: Message[] } = await req.json();  // Aggiungi il tipo per messages
-  console.log("Messaggi ricevuti:", messages); // Log per vedere il contenuto dei messaggi ricevuti
+  //parsing del corpo della richiesta per ottenere i messaggi
+  const { messages }: { messages: Message[] } = await req.json(); //parsing del JSON in arrivo
+  console.log("Messaggi ricevuti:", messages); 
 
-  // Cerca se il messaggio contiene una richiesta di dati meteo
+  //controllo se uno dei messaggi contiene una richiesta di dati meteo
   const wetDataQuery = messages.find((message) => message.content.includes("wet data"));
-  console.log("Controllo per richiesta dati meteo:", wetDataQuery);  // Log per vedere se è stata trovata una richiesta
+  console.log("Controllo per richiesta dati meteo:", wetDataQuery); 
 
   if (wetDataQuery) {
-    console.log("Richiesta di dati meteo:", wetDataQuery.content);
+    console.log("Richiesta di dati meteo:", wetDataQuery.content); 
+
+    //estrazione delle date dalla richiesta
     const dates = extractDatesFromMessage(wetDataQuery.content);
     
     if (dates) {
       try {
+        //recupero dei dati meteo utilizzando le date estratte
         const data = await fetchWetData(dates.start, dates.end);
-  
-        // Serializzazione degli oggetti nella risposta
+
+        //serializzazione dei dati meteo per garantire la corretta restituzione
         const serializedData = {
           ...data,
           wet2d: {
             ...data.wet2d,
-            data: data.wet2d.data.map((item: any) => JSON.stringify(item)) // Converti ogni elemento in stringa
+            data: data.wet2d.data.map((item: any) => JSON.stringify(item)) //conversione degli elementi in stringhe
           }
         };
-  
-        console.log("Dati meteo serializzati:", serializedData);
-        return new Response(JSON.stringify({ data: serializedData }), { status: 200 });
+
+        console.log("Dati meteo serializzati:", serializedData); 
+        return new Response(JSON.stringify({ data: serializedData }), { status: 200 }); //restituzione dei dati meteo
       } catch (error) {
-        console.error("Errore durante il recupero dei dati:", error);
+        console.error("Errore durante il recupero dei dati:", error); 
         return new Response(JSON.stringify({ error: "Non sono riuscito a recuperare i dati meteo." }), { status: 500 });
       }
     } else {
+      //rrrore se le date non possono essere estratte
       return new Response(JSON.stringify({ error: "Non sono riuscito a capire le date richieste." }), { status: 400 });
     }
   }
 
-  // Se non c'è richiesta di dati meteo, continua con la gestione standard del modello AI
+  //caso in cui non ci sia una richiesta di dati meteo: continua con la gestione standard
   console.log("Nessuna richiesta meteo, procedo con la risposta AI...");
 
-  // Utilizzo di streamText per ottenere la risposta finale
+  //converti i messaggi in un formato accettato dal modello AI
   const result = await streamText({
-    model,
-    system: systemPrompt,
-    messages: convertToCoreMessages(messages),
+    model, //modello da utilizzare
+    system: systemPrompt, //prompt iniziale
+    messages: convertToCoreMessages(messages), //conversione dei messaggi in formato standard
   });
 
-  console.log("Messaggi convertiti per AI:", convertToCoreMessages(messages));  // Log per vedere i messaggi convertiti
+  console.log("Messaggi convertiti per AI:", convertToCoreMessages(messages)); 
+  console.log("Risultato finale della risposta:", result); 
 
-  // Log della risposta finale
-  console.log("Risultato finale della risposta:", result);
-
-  // Restituzione della risposta come stream
+  //restituzione della risposta come stream per il frontend
   return result.toDataStreamResponse();
 };
 
-
-// Funzione per estrarre le date dalla richiesta dell'utente (esempio: "from 2024-01-01 to 2024-01-02")
+//funzione per estrarre le date da una richiesta testuale
 function extractDatesFromMessage(message: string) {
-  console.log("Estrazione date dal messaggio:", message);  // Log per vedere il messaggio in entrata
+  console.log("Estrazione date dal messaggio:", message); 
+
+  //regex per trovare le date nel formato "from YYYY-MM-DD to YYYY-MM-DD"
   const regex = /from (\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/;
-  const match = message.match(regex);
+  const match = message.match(regex); //ricerca del pattern nel messaggio
 
   if (match) {
-    console.log("Match trovato:", match);  // Log per vedere se il match è stato trovato
-    return { start: match[1], end: match[2] };
+    console.log("Match trovato:", match); 
+    return { start: match[1], end: match[2] }; //restituzione delle date estratte
   }
 
-  console.log("Nessun match trovato.");  // Log nel caso non venga trovato nulla
-  return null;
+  console.log("Nessun match trovato."); 
+  return null; 
 }

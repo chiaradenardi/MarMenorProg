@@ -1,3 +1,7 @@
+
+import Image from 'next/image';
+import Link from 'next/link';
+
 const About = () => {
     return (
         <div className="p-8">
@@ -73,6 +77,18 @@ const About = () => {
                         <li><span className="font-bold">Ripristino degli Habitat Naturali</span>: Ci sono anche progetti per ripristinare le aree costiere e le piante marine che possono migliorare la qualità dell'acqua e sostenere la biodiversità.</li>
                     </ul>
                 </div>
+            </div>
+            {/* Logo ChatGPT cliccabile */}
+            <div className="mt-6 flex justify-end">
+                <Link href="/chatbot">
+                    <Image
+                        src="/images/chatgpt-logo.png" 
+                        alt="Chatbot"
+                        width={50}
+                        height={50}
+                        className="hover:opacity-80 transition-opacity cursor-pointer"
+                    />
+                </Link>
             </div>
         </div>
     );
