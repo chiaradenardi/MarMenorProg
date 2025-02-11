@@ -2,9 +2,22 @@
 import { useChat } from "ai/react";
 import { FC, useEffect } from "react";
 
-// Viene passato un oggetto con l'API endpoint (/api/chat) da cui il sistema di chat recupera i dati
+// Componenti per mostrare i risultati dei tools
+const WeatherDataCard: FC<{ data: any }> = ({ data }) => (
+  <div className="bg-blue-100 p-4 rounded-lg my-2">
+    <strong>Dati meteo attuali usando il json nuovo:</strong>
+  </div>
+);
+
+const WeatherHistoryCard: FC<{ data: any }> = ({ data }) => (
+  <div className="bg-gray-100 p-4 rounded-lg my-2">
+    <strong>Dati meteo attuali usando il json vecchio:</strong>
+  </div>
+);
+
+// Componente principale della chat
 const ChatPage: FC = () => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({ api: "/api/chat" });
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat();
 
   useEffect(() => {
     console.log("Messaggi ricevuti dall'API:", messages);
@@ -18,7 +31,6 @@ const ChatPage: FC = () => {
       <main className="flex-grow flex flex-col items-center justify-center bg-gray-50 px-4">
         <div className="max-w-2xl w-full">
           <div className="h-80 overflow-y-auto bg-white p-4 border rounded-lg shadow-sm">
-            {/*Se ci sono messaggi, vengono visualizzati uno per uno usando il metodo .map().*/}
             {messages && messages.length > 0 ? (
               messages.map((message, index) => (
                 <ChatMessage
@@ -32,7 +44,7 @@ const ChatPage: FC = () => {
             )}
           </div>
 
-          {/*Form per l'input dell'utente*/}
+          {/* Form per l'input dell'utente */}
           <form onSubmit={handleSubmit} className="flex mt-4 bg-white border rounded-lg shadow-sm">
             <input
               type="text"
@@ -55,8 +67,12 @@ const ChatPage: FC = () => {
   );
 };
 
-//ChatMessage si occupa di renderizzare ogni messaggio
+// ChatMessage gestisce ogni messaggio della chat
 const ChatMessage: FC<{ message: any; isLoading: boolean }> = ({ message, isLoading }) => {
+  if (message.toolInvocations) {
+    return <ToolMessageContent message={message} />;
+  }
+
   if (message.role === "assistant") {
     return (
       <div className="bg-gray-100 p-4 rounded-lg mb-2">
@@ -73,6 +89,25 @@ const ChatMessage: FC<{ message: any; isLoading: boolean }> = ({ message, isLoad
         {message.content}
       </div>
     </div>
+  );
+};
+
+// Gestisce i messaggi che provengono dai tools
+const ToolMessageContent: FC<{ message: any }> = ({ message }) => {
+  return (
+    <>
+      {message.toolInvocations?.map((toolInvocation: any) => {
+        const { toolName, toolCallId, state, result } = toolInvocation;
+
+        if (state === "result") {
+          if (toolName === "indexAPI") return <WeatherDataCard key={toolCallId} data={result} />;
+          if (toolName === "indexAPIold") return <WeatherHistoryCard key={toolCallId} data={result} />;
+          return <div key={toolCallId}>Tool sconosciuto: {toolName}</div>;
+        } else {
+          return <div key={toolCallId}>Elaborazione in corso...</div>;
+        }
+      })}
+    </>
   );
 };
 
