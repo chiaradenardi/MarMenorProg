@@ -11,8 +11,10 @@ const WeatherDataSchema = z.object({
   temp: z.object({ data: z.array(z.array(z.number())) }),
 });
 
+// Definisce il tipo `WeatherData` basato sullo schema Zod
 type WeatherData = z.infer<typeof WeatherDataSchema>;
 
+// Pulizia dei dati: appiattisce l'array di profondità (depth) e filtra solo i numeri validi
 const cleanedWeatherData = {
   ...weatherData,
   depth: {
@@ -21,6 +23,7 @@ const cleanedWeatherData = {
   }
 };
 
+// Applica la validazione e la tipizzazione ai dati puliti
 const typedWeatherData: WeatherData = WeatherDataSchema.parse(cleanedWeatherData);
 
 // Tool per ottenere i dati meteo tra due date specifiche
@@ -34,6 +37,7 @@ const getWeatherData = tool({
     const startDate = new Date(`${start}T00:00:00Z`);
     const endDate = new Date(`${end}T23:59:59Z`);
 
+    // Filtra gli indici dei dati meteo per ottenere quelli compresi tra le date di inizio e fine
     const filteredIndices = typedWeatherData.time.data
       .map((time, index) => ({
         time,
@@ -46,6 +50,7 @@ const getWeatherData = tool({
       return { error: "Nessun dato trovato per il periodo selezionato." };
     }
 
+    // Calcola la temperatura minima e massima per ogni indice nel range selezionato
     const results = filteredIndices.map(({ index, time }) => ({
       time,
       minTemperature: Math.min(...typedWeatherData.temp.data[index]),

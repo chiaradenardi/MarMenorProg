@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import weatherDataRaw from "@/app/utils/weatherDataOLD.json"; 
 
+// Definizione dello schema Zod per validare la struttura dei dati meteo
 const WeatherDataSchema = z.object({
   wet2d: z.object({
     data: z.array(
@@ -18,19 +19,13 @@ const WeatherDataSchema = z.object({
   })
 });
 
+// Tipo `WeatherData` che corrisponde alla struttura definita dallo schema Zod
 type WeatherData = z.infer<typeof WeatherDataSchema>;
 
-// Supponiamo che `weatherDataRaw` sia il tuo JSON
+// Applica la validazione Zod a weatherDataRaw per garantirne la struttura corretta
 const typedWeatherData: WeatherData = WeatherDataSchema.parse(weatherDataRaw);
 
-const cleanedWeatherData = {
-  ...typedWeatherData,
-  depth: {
-    ...typedWeatherData.wet2d, // Usa il dato corretto, ad esempio wet2d
-    data: typedWeatherData.wet2d?.data?.flat().filter((item: any) => typeof item === "number") || []
-  }
-};
-
+// Per ottenere i dati meteo tra due date specifiche
 const getWeatherData = tool({
   description: "Ottiene i dati meteo della laguna in un intervallo di date specifico dal dataset più recente.",
   parameters: z.object({
@@ -41,6 +36,7 @@ const getWeatherData = tool({
     const startDate = new Date(`${start}T00:00:00Z`);
     const endDate = new Date(`${end}T23:59:59Z`);
 
+    // Filtra gli indici dei dati meteo in base all'intervallo di date specificato
     const filteredIndices = typedWeatherData.wet2d.data
       .map((entry, index) => ({
         time: entry.time,
@@ -49,10 +45,12 @@ const getWeatherData = tool({
       }))
       .filter(({ date }) => date >= startDate && date <= endDate);
 
+    // Se non ci sono dati per il periodo selezionato, ritorna un errore
     if (filteredIndices.length === 0) {
       return { error: "Nessun dato trovato per il periodo selezionato." };
     }
 
+    // Calcola la temperatura minima e massima per ciascun dato filtrato
     const results = filteredIndices.map(({ index, time }) => ({
       time,
       minTemperature: Math.min(...typedWeatherData.wet2d.data[index].values.map((v) => v.value)),

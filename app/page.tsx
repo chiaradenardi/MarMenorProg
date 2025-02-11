@@ -15,7 +15,7 @@ const Page = () => {
   const handleFetchData = async () => {
     setLoading(true); //imposta lo stato di loading a true per indicare che i dati sono in fase di caricamento
     const response = await fetchWetData(startDate, endDate); //recupera i dati usando la funzione importata
-    setData(response.wet2d); //imposta i dati ottenuti nello stato
+    //setData(response.wet2d); //imposta i dati ottenuti nello stato
     setLoading(false); //imposta lo stato di loading a false una volta che i dati sono stati ricevuti
   };
 

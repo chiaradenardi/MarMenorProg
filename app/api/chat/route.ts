@@ -16,14 +16,16 @@ const systemPrompt =
         return new Response(JSON.stringify({ error: "Missing messages in request" }), { status: 400 });
       }
   
+      // Esecuzione della risposta tramite streamTex
       const result = await streamText({
         model,
         system: systemPrompt,
         messages: convertToCoreMessages(body.messages),
-        tools: { indexAPIold },
+        tools: { indexAPIold }, // Inserire indexAPI per la risposta basata sul json nuovo (TODO: gestire lo scambio tra i due)
         maxSteps: 3,
       });
   
+      //Se l'elaborazione è riuscita, la risposta viene trasformata in un flusso di dati
       return result.toDataStreamResponse();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
