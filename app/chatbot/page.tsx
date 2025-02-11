@@ -2,20 +2,23 @@
 import { useChat } from "ai/react";
 import { FC, useEffect } from "react";
 
+// Viene passato un oggetto con l'API endpoint (/api/chat) da cui il sistema di chat recupera i dati
 const ChatPage: FC = () => {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({ api: "/api/chat" });
 
   useEffect(() => {
+    console.log("Messaggi ricevuti dall'API:", messages);
     if (error) {
       console.error("Errore nella chat:", error);
     }
-  }, [error]);
+  }, [messages, error]);
 
   return (
     <div className="flex flex-col h-screen">
       <main className="flex-grow flex flex-col items-center justify-center bg-gray-50 px-4">
         <div className="max-w-2xl w-full">
           <div className="h-80 overflow-y-auto bg-white p-4 border rounded-lg shadow-sm">
+            {/*Se ci sono messaggi, vengono visualizzati uno per uno usando il metodo .map().*/}
             {messages && messages.length > 0 ? (
               messages.map((message, index) => (
                 <ChatMessage
@@ -28,6 +31,8 @@ const ChatPage: FC = () => {
               <div className="text-gray-400">Nessun messaggio disponibile</div>
             )}
           </div>
+
+          {/*Form per l'input dell'utente*/}
           <form onSubmit={handleSubmit} className="flex mt-4 bg-white border rounded-lg shadow-sm">
             <input
               type="text"
@@ -50,6 +55,7 @@ const ChatPage: FC = () => {
   );
 };
 
+//ChatMessage si occupa di renderizzare ogni messaggio
 const ChatMessage: FC<{ message: any; isLoading: boolean }> = ({ message, isLoading }) => {
   if (message.role === "assistant") {
     return (

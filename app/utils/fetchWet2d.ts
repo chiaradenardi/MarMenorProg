@@ -1,4 +1,4 @@
-import weatherData from "@/app/utils/weatherData.json"; // Supponiamo che il JSON sia nella cartella utils
+import weatherData from "@/app/utils/weatherData.json"; 
 
 interface WeatherData {
   time: { data: string[] };
@@ -8,23 +8,24 @@ interface WeatherData {
 
 type TrendEntry = {
   depth: number;
-  time: string;  // Aggiungiamo l'orario per ogni trend
+  time: string; 
   trend: "increase" | "decrease" | "none";
 };
 
 const typedWeatherData: WeatherData = weatherData as WeatherData;
 
-// Funzione per recuperare i dati meteo con temperatura minima e massima nel periodo richiesto
+// Funzione per estraere le temperature tra due date e analizzare i trend di variazione (temp min, max, increase/decrease)
 export const fetchWetData = async (start: string, end: string) => {
-  // Filtra i dati in base alla data
+  // Filtra i dati in base alla data all'interno del json
   const filteredTime = typedWeatherData.time.data.filter((time) => {
     const timeDate = new Date(time);
     const startDate = new Date(`${start}T00:00:00Z`); // Aggiunge l'orario
-    const endDate = new Date(`${end}T23:59:59Z`); // Assicura di prendere tutta la giornata
+    const endDate = new Date(`${end}T23:59:59Z`);
 
     return timeDate >= startDate && timeDate <= endDate;
   });
 
+  // Se non ci sono dati nel periodo scelto, restituisce un messaggio di errore
   if (filteredTime.length === 0) {
     return "Nessun dato trovato per il periodo indicato.";
   }
@@ -35,53 +36,74 @@ export const fetchWetData = async (start: string, end: string) => {
     const temperaturesAtDepths = typedWeatherData.depth.data.map((depth, depthIndex) => ({
       depth,
       temperature: typedWeatherData.temp.data[timeIndex][depthIndex],
-      time,  // Aggiungi l'orario ai dati
+      time,
     }));
 
     return temperaturesAtDepths;
   });
 
-  // Trova la temperatura minima e massima e analizza i trend
+  // Trova la temperatura minima e massima
   let minTemperature = Infinity;
   let maxTemperature = -Infinity;
 
+  temperatureData.forEach((dayData) => {
+    dayData.forEach((entry) => {
+      if (entry.temperature < minTemperature) minTemperature = entry.temperature;
+      if (entry.temperature > maxTemperature) maxTemperature = entry.temperature;
+    });
+  });
+
+  // Per ogni giorno analizza le variazioni di temperatura per ogni profondità
   const trendAnalysis = temperatureData.map((dayData) => {
-    let dayTrend: TrendEntry[] = []; // Specifica il tipo dell'array
-    let prevTemperature = dayData[0].temperature;
-    let currentTrend: "increase" | "decrease" | "none" = "none"; // Tipo più preciso
+    let dayTrend: TrendEntry[] = [];
+    let prevTemperature: number | null = null; // Impostato come null per il primo confronto
+    let currentTrend: "increase" | "decrease" | "none" = "none";
     let trendStartDepth: number | null = null;
 
+    /**
+     * Confronta ogni temperatura con la precedente:
+     * Se aumenta, segna un trend increase.
+     * Se diminuisce, segna un trend decrease.
+     * Se rimane stabile, il trend non cambia.
+     */
     dayData.forEach((entry) => {
-      if (entry.temperature > prevTemperature) {
-        if (currentTrend !== "increase") {
-          if (trendStartDepth !== null) {
-            dayTrend.push({
-              depth: trendStartDepth, // Aggiungi la profondità da cui inizia il trend
-              time: entry.time,       // Aggiungi l'orario
-              trend: currentTrend,
-            });
+      if (prevTemperature !== null) {
+        if (entry.temperature < prevTemperature) {
+          if (currentTrend !== "increase") {
+            if (trendStartDepth !== null) {
+              dayTrend.push({
+                depth: trendStartDepth,
+                time: entry.time,
+                trend: currentTrend,
+              });
+            }
+            currentTrend = "increase";
+            trendStartDepth = entry.depth;
           }
-          currentTrend = "increase";
-          trendStartDepth = entry.depth; // Salva la profondità dove inizia l'aumento
-        }
-      } else if (entry.temperature < prevTemperature) {
-        if (currentTrend !== "decrease") {
-          if (trendStartDepth !== null) {
-            dayTrend.push({
-              depth: trendStartDepth, // Aggiungi la profondità da cui inizia il trend
-              time: entry.time,       // Aggiungi l'orario
-              trend: currentTrend,
-            });
+        } else if (entry.temperature > prevTemperature) {
+          if (currentTrend !== "decrease") {
+            if (trendStartDepth !== null) {
+              dayTrend.push({
+                depth: trendStartDepth,
+                time: entry.time,
+                trend: currentTrend,
+              });
+            }
+            currentTrend = "decrease";
+            trendStartDepth = entry.depth;
           }
-          currentTrend = "decrease";
-          trendStartDepth = entry.depth; // Salva la profondità dove inizia la diminuzione
+        } else {
+          // Se la temperatura non cambia, non aggiorniamo il trend
+          if (currentTrend === "none") {
+            currentTrend = "none"; // Assicura che il trend resti "none"
+          }
         }
       }
 
       prevTemperature = entry.temperature;
     });
 
-    // Aggiungi l'ultimo trend se presente
+    // Se alla fine del ciclo c’è ancora un trend in corso, lo aggiungiamo a dayTrend
     if (trendStartDepth !== null) {
       dayTrend.push({
         depth: trendStartDepth,
@@ -90,21 +112,12 @@ export const fetchWetData = async (start: string, end: string) => {
       });
     }
 
-    // Aggiungi anche la temperatura accanto al trend
-    return dayTrend.map(entry => ({
+    return dayTrend.map((entry) => ({
       depth: entry.depth,
-      temperature: dayData.find(d => d.depth === entry.depth)?.temperature ?? 0, // Trova la temperatura per quella profondità
+      temperature: dayData.find((d) => d.depth === entry.depth)?.temperature ?? 0,
       time: entry.time,
       trend: entry.trend,
     }));
-  });
-
-  // Trova la temperatura minima e massima
-  temperatureData.forEach((dayData) => {
-    dayData.forEach((entry) => {
-      if (entry.temperature < minTemperature) minTemperature = entry.temperature;
-      if (entry.temperature > maxTemperature) maxTemperature = entry.temperature;
-    });
   });
 
   // Restituisce i dati con la temperatura minima, massima e l'analisi del trend
@@ -113,6 +126,10 @@ export const fetchWetData = async (start: string, end: string) => {
     end,
     min_temperature: minTemperature,
     max_temperature: maxTemperature,
-    trend_analysis: JSON.stringify(trendAnalysis, null, 2), // Converti l'analisi in stringa leggibile
+    trend_analysis: trendAnalysis.flatMap((dayTrend) =>
+      dayTrend.map((entry) =>
+        `A profondità ${entry.depth}m, temperatura ${entry.temperature.toFixed(2)}°C, trend: ${entry.trend}, orario: ${entry.time}`
+      )
+    ).join("\n"),
   };
 };
