@@ -28,7 +28,7 @@ const typedWeatherData: WeatherData = WeatherDataSchema.parse(cleanedWeatherData
 
 // Tool per ottenere i dati meteo tra due date specifiche
 const getWeatherData = tool({
-  description: "Ottiene i dati meteo della laguna in un intervallo di date specifico dal dataset più recente.",
+  description: "Ottiene tutti i dati meteo della laguna in un intervallo di date specifico.",
   parameters: z.object({
     start: z.string().describe("Data di inizio nel formato YYYY-MM-DD."),
     end: z.string().describe("Data di fine nel formato YYYY-MM-DD."),
@@ -50,15 +50,14 @@ const getWeatherData = tool({
       return { error: "Nessun dato trovato per il periodo selezionato." };
     }
 
-    // Calcola la temperatura minima e massima per ogni indice nel range selezionato
+    // Mappa i dati per ogni indice nel range selezionato
     const results = filteredIndices.map(({ index, time }) => ({
       time,
-      minTemperature: Math.min(...typedWeatherData.temp.data[index]),
-      maxTemperature: Math.max(...typedWeatherData.temp.data[index]),
+      depth: typedWeatherData.depth.data[index] ?? null,
+      temp: typedWeatherData.temp.data[index] ?? [],
     }));
-    
 
-    return results;
+    return { data: results };
   },
 });
 

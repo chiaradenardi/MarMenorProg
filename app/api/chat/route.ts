@@ -21,7 +21,7 @@ const systemPrompt =
         model,
         system: systemPrompt,
         messages: convertToCoreMessages(body.messages),
-        tools: { indexAPIold }, // Inserire indexAPI per la risposta basata sul json nuovo (TODO: gestire lo scambio tra i due)
+        tools: { indexAPIold }, // Inserire indexAPI per la risposta basata sul json nuovo 
         maxSteps: 3,
       });
   
