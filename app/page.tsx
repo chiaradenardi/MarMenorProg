@@ -109,15 +109,21 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) => (
-                  entry.values.map((value, idx) => (
-                    <tr key={`${index}-${idx}`} className={idx % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-                      <td className="border border-gray-300 p-2 text-center">{entry.time}</td>
-                      <td className="border border-gray-300 p-2 text-center">{value.z}</td>
-                      <td className="border border-gray-300 p-2 text-center">{value.value}</td>
-                    </tr>
-                  ))
-                ))}
+                {data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) =>
+                  entry.values.map((value, idx) => {
+                    const dateTime = new Date(entry.time); // Converte la stringa in un oggetto Date
+                    const date = dateTime.toLocaleDateString("it-IT"); // Formatta la data in "dd/mm/yyyy"
+                    const time = dateTime.toLocaleTimeString("it-IT", { hour: '2-digit', minute: '2-digit' }); // Estrae l'ora in formato "hh:mm"
+
+                    return (
+                      <tr key={`${index}-${idx}`} className={idx % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                        <td className="border border-gray-300 p-2 text-center">{date} {time}</td>
+                        <td className="border border-gray-300 p-2 text-center">{value.z}</td>
+                        <td className="border border-gray-300 p-2 text-center">{value.value}</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
