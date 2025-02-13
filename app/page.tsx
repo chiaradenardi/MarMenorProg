@@ -1,34 +1,46 @@
-'use client';
+"use client"
 
 import { useState } from "react";
+import { DateRangePicker } from 'react-date-range';
+import { addDays } from 'date-fns';
 import getWeatherData from "@/app/tools/index_wet_old"; // Tool usato nella chatbot
 import Link from "next/link";
 import Image from 'next/image';
+import { format } from "date-fns";
+import 'react-date-range/dist/styles.css'; // Importa lo stile
+import 'react-date-range/dist/theme/default.css'; // Importa il tema
 
 const Page = () => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [dateRange, setDateRange] = useState<any>({
+    startDate: new Date(),
+    endDate: addDays(new Date(), 7),
+    key: 'selection',
+  });
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showTable, setShowTable] = useState(true); // Stato per mostrare/nascondere la tabella
-  const [noDataMessage, setNoDataMessage] = useState<string | null>(null); // Stato per il messaggio di nessun dato
+  const [showTable, setShowTable] = useState(true);
+  const [noDataMessage, setNoDataMessage] = useState<string | null>(null);
 
-  // Funzione asincrona per ottenere i dati dal tool della chatbot
+  // Funzione asincrona per ottenere i dati
   const handleFetchData = async () => {
-    if (!startDate || !endDate) return; // Evita chiamate senza date selezionate
+    const { startDate, endDate } = dateRange;
+    if (!startDate || !endDate) return;
     setLoading(true);
-    setNoDataMessage(null); // Resetta il messaggio di nessun dato
+    setNoDataMessage(null);
 
     try {
       const response = await getWeatherData.execute(
-        { start: startDate, end: endDate },
+        {
+          start: format(startDate, "yyyy-MM-dd"),
+          end: format(endDate, "yyyy-MM-dd"),
+        },
         { toolCallId: "unique-id", messages: [] }
       );
-      
+
       if (!response.data || response.data.length === 0) {
         setNoDataMessage("Nessun dato meteorologico per questo range di date.");
       } else {
-        setData(response.data || null); // Imposta i dati ricevuti
+        setData(response.data || null);
       }
     } catch (error) {
       console.error("Errore nel recupero dei dati:", error);
@@ -41,64 +53,48 @@ const Page = () => {
 
   return (
     <div className="p-20 flex-grow">
-      <h1 className="text-4xl mb-4 font-bold">Benvenuto nella home</h1>
-      
-      {/* Form per selezionare le date */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleFetchData();
-        }}
-        className="mb-8"
-      >
-        <label className="block mb-2">
-          Data di inizio:
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border p-2 rounded"
-          />
-        </label>
-        <label className="block mb-4">
-          Data di fine:
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border p-2 rounded"
-          />
-        </label>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white p-2 rounded"
-        >
-          Mostra dati
-        </button>
-      </form>
+      <h1 className="text-center mb-4">
+        Seleziona un range di date per vedere la variazione della temperatura nella laguna in base anche alla sua profondità.
+      </h1>
 
-      {/* Messaggio di errore o nessun dato */}
-      {noDataMessage && (
-        <p className="text-red-500 mb-8 font-semibold">{noDataMessage}</p>
-      )}
+      {/* Calendario per selezionare un intervallo di date */}
+      <div className="mb-8 flex justify-center">
+        <DateRangePicker
+          ranges={[dateRange]}
+          onChange={(item: any) => setDateRange(item.selection)}
+        />
+      </div>
+
+      {/* Bottone per ottenere i dati */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={handleFetchData}
+          className="bg-blue-500 text-white p-2 rounded"
+          disabled={loading}
+        >
+          {loading ? "Caricamento..." : "Mostra dati"}
+        </button>
+      </div>
+
+      {/* Messaggio di errore */}
+      {noDataMessage && <p className="text-red-500 mt-4 font-semibold text-center">{noDataMessage}</p>}
 
       {/* Bottone per mostrare/nascondere la tabella */}
       {data && !noDataMessage && (
-        <button
-          onClick={() => setShowTable(!showTable)}
-          className="bg-green-500 text-white p-2 rounded mb-8"
-        >
-          {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
-        </button>
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={() => setShowTable(!showTable)}
+            className="bg-green-500 text-white p-2 rounded"
+          >
+            {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
+          </button>
+        </div>
       )}
 
-      {/* Visualizzazione dei dati */}
-      {loading && <p>Caricamento...</p>}
+      {/* Tabella con i dati */}
       {!loading && data && showTable && (
-        <>
-          <h1 className="text-lg mb-8 font-semibold">Dati Meteo</h1>
-
-          {/* Tabella con dati */}
+        <div className="mt-8">
+          <h1 className="text-lg font-semibold mb-4 text-center">Dati Meteo</h1>
           <div className="overflow-x-auto">
             <table className="table-auto w-full border-collapse border border-gray-300">
               <thead>
@@ -111,13 +107,11 @@ const Page = () => {
               <tbody>
                 {data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) =>
                   entry.values.map((value, idx) => {
-                    const dateTime = new Date(entry.time); // Converte la stringa in un oggetto Date
-                    const date = dateTime.toLocaleDateString("it-IT"); // Formatta la data in "dd/mm/yyyy"
-                    const time = dateTime.toLocaleTimeString("it-IT", { hour: '2-digit', minute: '2-digit' }); // Estrae l'ora in formato "hh:mm"
-                    const hour = dateTime.getHours(); // Otteniamo l'ora per determinare il colore
-
-                    // Alterniamo tra due colori in base all'ora
-                    const rowColor = hour % 2 === 0 ? "bg-gray-100" : "bg-white"; // Colore alternato tra pari e dispari
+                    const dateTime = new Date(entry.time);
+                    const date = format(dateTime, "dd/MM/yyyy");
+                    const time = format(dateTime, "HH:mm");
+                    const hour = dateTime.getHours();
+                    const rowColor = hour % 2 === 0 ? "bg-gray-100" : "bg-white";
 
                     return (
                       <tr key={`${index}-${idx}`} className={rowColor}>
@@ -131,7 +125,7 @@ const Page = () => {
               </tbody>
             </table>
           </div>
-        </>
+        </div>
       )}
 
       {/* Logo ChatGPT cliccabile */}
