@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { DateRangePicker } from 'react-date-range';
 import { addDays } from 'date-fns';
-import getWeatherData from "@/app/tools/index_wet_old"; // Tool usato nella chatbot
+import getWeatherData from "@/app/tools/index_wet_old"; 
 import Link from "next/link";
 import Image from 'next/image';
 import { format } from "date-fns";
-import 'react-date-range/dist/styles.css'; // Importa lo stile
-import 'react-date-range/dist/theme/default.css'; // Importa il tema
+import 'react-date-range/dist/styles.css'; 
+import 'react-date-range/dist/theme/default.css'; 
 
 const Page = () => {
   const [dateRange, setDateRange] = useState<any>({
@@ -25,8 +25,10 @@ const Page = () => {
   const handleFetchData = async () => {
     const { startDate, endDate } = dateRange;
     if (!startDate || !endDate) return;
+    
     setLoading(true);
     setNoDataMessage(null);
+    setShowTable(false); // Nascondi la tabella quando si fa una nuova ricerca
 
     try {
       const response = await getWeatherData.execute(
@@ -41,6 +43,7 @@ const Page = () => {
         setNoDataMessage("Nessun dato meteorologico per questo range di date.");
       } else {
         setData(response.data || null);
+        setShowTable(true); // Mostra la tabella se ci sono dati
       }
     } catch (error) {
       console.error("Errore nel recupero dei dati:", error);
@@ -49,6 +52,11 @@ const Page = () => {
     }
 
     setLoading(false);
+  };
+
+  // Funzione per visualizzare/nascondere la tabella
+  const toggleTableVisibility = () => {
+    setShowTable(!showTable);
   };
 
   return (
@@ -81,9 +89,9 @@ const Page = () => {
 
       {/* Bottone per mostrare/nascondere la tabella */}
       {data && !noDataMessage && (
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-6">
           <button
-            onClick={() => setShowTable(!showTable)}
+            onClick={toggleTableVisibility}
             className="bg-gray-400 text-white p-2 rounded"
           >
             {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
