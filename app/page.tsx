@@ -53,7 +53,7 @@ const Page = () => {
 
   return (
     <div className="p-20 flex-grow">
-      <h1 className="text-center mb-4">
+      <h1 className="text-center mb-12">
         Seleziona un range di date per vedere la variazione della temperatura nella laguna in base anche alla sua profondità.
       </h1>
 
@@ -84,7 +84,7 @@ const Page = () => {
         <div className="flex justify-center mb-4">
           <button
             onClick={() => setShowTable(!showTable)}
-            className="bg-green-500 text-white p-2 rounded"
+            className="bg-gray-400 text-white p-2 rounded"
           >
             {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
           </button>
