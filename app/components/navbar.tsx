@@ -9,7 +9,7 @@ export default function Navbar() {
 
   return (
     <header className="flex justify-between items-center px-8 py-4 bg-white shadow-md">
-      <h1 className="text-2xl font-bold text-blue-600">SmartLagoon</h1>
+      <h1 className="text-2xl font-bold text-blue-600">SMARTLAGOON</h1>
       <nav className="flex space-x-6">
         <Link
           href="/"

@@ -10,7 +10,7 @@ export default function Footer() {
         {/* Colonna sinistra con progetto smartlagoon */}
         <div className="max-w-sm flex items-center space-x-4">
             <div>
-                <h2 className="text-2xl font-bold text-blue-700">SmartLagoon</h2>
+                <h2 className="text-2xl font-bold text-blue-700">SMARTLAGOON</h2>
                 <p className="mt-2 text-sm">
                     Innovative modelling approaches for predicting Socio-environMental
                     evolution in highly anthRopized coastal LAGOONS.
