@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import getWeatherData from "@/app/tools/index_wet_old"; // Importa il tool usato nella chatbot
+import getWeatherData from "@/app/tools/index_wet_old"; // Tool usato nella chatbot
 import Link from "next/link";
 import Image from 'next/image';
 
@@ -10,21 +10,30 @@ const Page = () => {
   const [endDate, setEndDate] = useState("");
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showTable, setShowTable] = useState(false); // Stato per mostrare/nascondere la tabella
+  const [noDataMessage, setNoDataMessage] = useState<string | null>(null); // Stato per il messaggio di nessun dato
 
   // Funzione asincrona per ottenere i dati dal tool della chatbot
   const handleFetchData = async () => {
     if (!startDate || !endDate) return; // Evita chiamate senza date selezionate
     setLoading(true);
-    
+    setNoDataMessage(null); // Resetta il messaggio di nessun dato
+
     try {
       const response = await getWeatherData.execute(
         { start: startDate, end: endDate },
         { toolCallId: "unique-id", messages: [] }
       );
-      setData(response.data || null); // Imposta i dati ricevuti
+      
+      if (!response.data || response.data.length === 0) {
+        setNoDataMessage("Nessun dato meteorologico per questo range di date.");
+      } else {
+        setData(response.data || null); // Imposta i dati ricevuti
+      }
     } catch (error) {
       console.error("Errore nel recupero dei dati:", error);
       setData(null);
+      setNoDataMessage("Errore nel recupero dei dati.");
     }
 
     setLoading(false);
@@ -68,25 +77,50 @@ const Page = () => {
         </button>
       </form>
 
+      {/* Messaggio di errore o nessun dato */}
+      {noDataMessage && (
+        <p className="text-red-500 mb-8 font-semibold">{noDataMessage}</p>
+      )}
+
+      {/* Bottone per mostrare/nascondere la tabella */}
+      {data && !noDataMessage && (
+        <button
+          onClick={() => setShowTable(!showTable)}
+          className="bg-green-500 text-white p-2 rounded mb-8"
+        >
+          {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
+        </button>
+      )}
+
       {/* Visualizzazione dei dati */}
       {loading && <p>Caricamento...</p>}
-      {!loading && data && (
+      {!loading && data && showTable && (
         <>
-          <h1 className="text-lg mb-8">Dati Meteo</h1>
-          <ul>
-            {data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) => (
-              <li key={index}>
-                <strong>Tempo:</strong> {entry.time}
-                <ul>
-                  {entry.values.map((value: { z: number; value: number }, idx: number) => (
-                    <li key={idx}>
-                      Z: {value.z}, Valore: {value.value}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
+          <h1 className="text-lg mb-8 font-semibold">Dati Meteo</h1>
+
+          {/* Tabella con dati */}
+          <div className="overflow-x-auto">
+            <table className="table-auto w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-blue-500 text-white">
+                  <th className="border border-gray-300 p-2">Giorno e Ora</th>
+                  <th className="border border-gray-300 p-2">Profondità</th>
+                  <th className="border border-gray-300 p-2">Temperatura</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((entry: { time: string; values: { z: number; value: number }[] }, index: number) => (
+                  entry.values.map((value, idx) => (
+                    <tr key={`${index}-${idx}`} className={idx % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                      <td className="border border-gray-300 p-2 text-center">{entry.time}</td>
+                      <td className="border border-gray-300 p-2 text-center">{value.z}</td>
+                      <td className="border border-gray-300 p-2 text-center">{value.value}</td>
+                    </tr>
+                  ))
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
 
