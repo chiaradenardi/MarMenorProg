@@ -17,7 +17,7 @@ const WeatherHistoryCard: FC<{ data: any }> = ({ data }) => (
 
 // Componente principale della chat
 const ChatPage: FC = () => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, setInput } = useChat();
 
   useEffect(() => {
     console.log("Messaggi ricevuti dall'API:", messages);
@@ -26,11 +26,17 @@ const ChatPage: FC = () => {
     }
   }, [messages, error]);
 
+  // Funzione per gestire il click sul suggerimento di domanda
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);  // Imposta la domanda suggerita come input
+  };
+
   return (
-    <div className="flex flex-col h-screen">
-      <main className="flex-grow flex flex-col items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-2xl w-full">
-          <div className="h-80 overflow-y-auto bg-white p-4 border rounded-lg shadow-sm">
+    <div className="flex flex-col h-screen bg-gray-50">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
+        <div className="max-w-3xl w-full space-y-4">
+          {/* Finestra della chat */}
+          <div className="h-[500px] overflow-y-auto bg-white p-6 border rounded-lg shadow-lg">
             {messages && messages.length > 0 ? (
               messages.map((message, index) => (
                 <ChatMessage
@@ -40,18 +46,31 @@ const ChatPage: FC = () => {
                 />
               ))
             ) : (
-              <div className="text-gray-400">Nessun messaggio disponibile</div>
+              <div></div>
             )}
           </div>
 
+          {/* Suggerimento domanda cliccabile */}
+          <div className="text-center text-sm text-gray-600 italic mb-4">
+            <p>
+              Es. Chiedi:{" "}
+              <span
+                className="text-blue-600 cursor-pointer hover:text-blue-800"
+                onClick={() => handleSuggestionClick("Qual è la temperatura massima della laguna il 20-10-2024?")}
+              >
+                "Qual è la temperatura massima della laguna il 20-10-2024?"
+              </span>
+            </p>
+          </div>
+
           {/* Form per l'input dell'utente */}
-          <form onSubmit={handleSubmit} className="flex mt-4 bg-white border rounded-lg shadow-sm">
+          <form onSubmit={handleSubmit} className="flex bg-white border rounded-lg shadow-md">
             <input
               type="text"
               value={input}
               onChange={handleInputChange}
-              className="flex-grow px-4 py-2 border-none outline-none"
-              placeholder="Chiedi la temperatura..."
+              className="flex-grow px-6 py-3 rounded-lg border-none outline-none text-lg"
+              placeholder="Fai una domanda..."
             />
             <button
               type="submit"
