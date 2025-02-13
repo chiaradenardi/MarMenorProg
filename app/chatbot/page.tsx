@@ -5,13 +5,13 @@ import { FC, useEffect } from "react";
 // Componenti per mostrare i risultati dei tools
 const WeatherDataCard: FC<{ data: any }> = ({ data }) => (
   <div className="bg-blue-100 p-4 rounded-lg my-2">
-    <strong>Dati meteo attuali usando il json nuovo:</strong>
+    <strong>Dati meteo attuali usando il json nuovo filtrato per range di date:</strong>
   </div>
 );
 
 const WeatherHistoryCard: FC<{ data: any }> = ({ data }) => (
   <div className="bg-gray-100 p-4 rounded-lg my-2">
-    <strong>Dati meteo attuali usando il json vecchio:</strong>
+    <strong>Dati meteo attuali usando il json vecchio filtrato per range di date:</strong>
   </div>
 );
 
@@ -50,12 +50,12 @@ const ChatPage: FC = () => {
             )}
           </div>
 
-          {/* Suggerimento domanda cliccabile */}
+          {/* Suggerimento domanda stilizzato */}
           <div className="text-center text-sm text-gray-600 italic mb-4">
             <p>
-              Es. Chiedi:{" "}
+              <span className="text-gray-500">Es. Chiedi: </span>
               <span
-                className="text-blue-600 cursor-pointer hover:text-blue-800"
+                className="inline-block bg-blue-100 text-blue-600 px-6 py-3 rounded-full shadow-lg cursor-pointer hover:bg-blue-200 hover:shadow-xl transition duration-300 ease-in-out"
                 onClick={() => handleSuggestionClick("Qual è la temperatura massima della laguna il 20-10-2024?")}
               >
                 "Qual è la temperatura massima della laguna il 20-10-2024?"
