@@ -10,7 +10,7 @@ const Page = () => {
   const [endDate, setEndDate] = useState("");
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showTable, setShowTable] = useState(false); // Stato per mostrare/nascondere la tabella
+  const [showTable, setShowTable] = useState(true); // Stato per mostrare/nascondere la tabella
   const [noDataMessage, setNoDataMessage] = useState<string | null>(null); // Stato per il messaggio di nessun dato
 
   // Funzione asincrona per ottenere i dati dal tool della chatbot
@@ -104,7 +104,7 @@ const Page = () => {
               <thead>
                 <tr className="bg-blue-500 text-white">
                   <th className="border border-gray-300 p-2">Giorno e Ora</th>
-                  <th className="border border-gray-300 p-2">Profondità</th>
+                  <th className="border border-gray-300 p-2">Profondità (m)</th>
                   <th className="border border-gray-300 p-2">Temperatura</th>
                 </tr>
               </thead>
@@ -114,9 +114,13 @@ const Page = () => {
                     const dateTime = new Date(entry.time); // Converte la stringa in un oggetto Date
                     const date = dateTime.toLocaleDateString("it-IT"); // Formatta la data in "dd/mm/yyyy"
                     const time = dateTime.toLocaleTimeString("it-IT", { hour: '2-digit', minute: '2-digit' }); // Estrae l'ora in formato "hh:mm"
+                    const hour = dateTime.getHours(); // Otteniamo l'ora per determinare il colore
+
+                    // Alterniamo tra due colori in base all'ora
+                    const rowColor = hour % 2 === 0 ? "bg-gray-100" : "bg-white"; // Colore alternato tra pari e dispari
 
                     return (
-                      <tr key={`${index}-${idx}`} className={idx % 2 === 0 ? "bg-gray-100" : "bg-white"}>
+                      <tr key={`${index}-${idx}`} className={rowColor}>
                         <td className="border border-gray-300 p-2 text-center">{date} {time}</td>
                         <td className="border border-gray-300 p-2 text-center">{value.z}</td>
                         <td className="border border-gray-300 p-2 text-center">{value.value}</td>
