@@ -1,6 +1,6 @@
 "use client"
 import { useChat } from "ai/react";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 
 // Componenti per mostrare i risultati dei tools
 const WeatherDataCard: FC<{ data: any }> = ({ data }) => (
@@ -18,17 +18,19 @@ const WeatherHistoryCard: FC<{ data: any }> = ({ data }) => (
 // Componente principale della chat
 const ChatPage: FC = () => {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error, setInput } = useChat();
+  const [showIcon, setShowIcon] = useState(true); // Mostra il fulmine all'inizio
 
   useEffect(() => {
     console.log("Messaggi ricevuti dall'API:", messages);
     if (error) {
       console.error("Errore nella chat:", error);
     }
+    setShowIcon(messages.length === 0);
   }, [messages, error]);
 
   // Funzione per gestire il click sul suggerimento di domanda
   const handleSuggestionClick = (suggestion: string) => {
-    setInput(suggestion);  // Imposta la domanda suggerita come input
+    setInput(suggestion); // Imposta la domanda suggerita come input
   };
 
   return (
@@ -36,7 +38,7 @@ const ChatPage: FC = () => {
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
         <div className="max-w-3xl w-full space-y-4">
           {/* Finestra della chat */}
-          <div className="h-[500px] overflow-y-auto bg-white p-6 border rounded-lg shadow-lg">
+          <div className="h-[500px] overflow-y-auto bg-white p-6 border rounded-lg shadow-lg relative">
             {messages && messages.length > 0 ? (
               messages.map((message, index) => (
                 <ChatMessage
@@ -47,6 +49,24 @@ const ChatPage: FC = () => {
               ))
             ) : (
               <div></div>
+            )}
+
+            {/* Icona di sfondo (fulmine) */}
+            {showIcon && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/3 pointer-events-none transition-opacity duration-700 ease-in-out">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 32"
+                  fill="#E5E7EB"
+                  stroke="#D1D5DB"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-48 h-64 opacity-50 drop-shadow-lg blur-[2px] transform scale-y-125"
+                >
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </div>
             )}
           </div>
 
@@ -63,23 +83,26 @@ const ChatPage: FC = () => {
             </p>
           </div>
 
-          {/* Form per l'input dell'utente */}
-          <form onSubmit={handleSubmit} className="flex bg-white border rounded-lg shadow-md">
-            <input
-              type="text"
-              value={input}
-              onChange={handleInputChange}
-              className="flex-grow px-6 py-3 rounded-lg border-none outline-none text-lg"
-              placeholder="Fai una domanda..."
-            />
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-r-lg shadow-md transition"
-              disabled={isLoading}
-            >
-              {isLoading ? "..." : "Invia"}
-            </button>
-          </form>
+            {/* Form per l'input dell'utente */}
+            <form onSubmit={handleSubmit} className="flex items-center justify-center mt-2 space-x-4">
+              {/* Campo di input arrotondato */}
+              <input
+                type="text"
+                value={input}
+                onChange={handleInputChange}
+                className="w-full px-6 py-3 rounded-full border border-gray-300 outline-none text-lg shadow-sm"
+                placeholder="Fai una domanda..."
+              />
+
+              {/* Bottone separato e arrotondato */}
+              <button
+                type="submit"
+                className="px-6 py-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-md transition"
+                disabled={isLoading}
+              >
+                {isLoading ? "..." : "Invia"}
+              </button>
+            </form>
         </div>
       </main>
     </div>
