@@ -5,7 +5,7 @@ import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 export default function Footer() {
   return (
     <footer className="bg-gray-100 py-10 px-6 text-gray-700">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start space-y-8 md:space-y-0 md:space-x-12">
         
         {/* Colonna sinistra con progetto smartlagoon */}
         <div className="max-w-sm flex items-center space-x-4">
@@ -24,7 +24,6 @@ export default function Footer() {
                 className="mt-6"
             />
         </div>
-
 
         {/* Colonna destra con info progetto e mia mail*/}
         <div>
