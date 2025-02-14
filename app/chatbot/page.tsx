@@ -84,8 +84,7 @@ const ChatPage: FC = () => {
           <form onSubmit={handleSubmit} className="flex items-center justify-center mt-2 space-x-4">
             {/* Label con testo descrittivo per l'input */}
             <label htmlFor="userInput" className="text-lg font-medium text-gray-700">
-              Fai una domanda:
-            </label>
+ì            </label>
             <input
               id="userInput"
               type="text"
