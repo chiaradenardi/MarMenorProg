@@ -65,14 +65,17 @@ const Page = () => {
         Seleziona un range di date per vedere la variazione della temperatura nella laguna in base anche alla sua profondità.
       </h1>
 
-      {/* Calendario per selezionare un intervallo di date */}
-      <div className="mb-8 flex justify-center">
-        <DateRangePicker
-          ranges={[dateRange]}
-          onChange={(item: any) => setDateRange(item.selection)}
-        />
-      </div>
-
+      <div className="mb-6 flex justify-center w-full">
+  <div> 
+    <DateRangePicker
+      ranges={[dateRange]}
+      onChange={(item: any) => setDateRange(item.selection)}
+      className="w-full sm:w-[90%] max-w-[450px]"  // Impostiamo una larghezza massima e un valore di percentuale per mobile
+      showMonthAndYearPickers={false}
+      showDateDisplay={false}
+    />
+  </div>
+</div>
       {/* Bottone per ottenere i dati */}
       <div className="flex justify-center mb-4">
         <button

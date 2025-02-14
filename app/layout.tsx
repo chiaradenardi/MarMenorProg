@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "./components/navbar";
-import Disclaimer from "./components/disclaimer";
 import Footer from "./components/footer";
 
 const geistSans = localFont({
@@ -28,19 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navbar/>
-        <main>{children}</main>
-        {/*<Disclaimer/>*/}
-        <Footer />
-      </body>
-    </html>
+<html lang="it">
+  <head>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
+    <title>Laguna Mar Menor</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <Navbar />
+    <main>{children}</main>
+    <Footer />
+  </body>
+</html>
   );
 }

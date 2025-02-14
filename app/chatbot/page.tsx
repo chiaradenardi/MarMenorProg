@@ -80,26 +80,31 @@ const ChatPage: FC = () => {
             </p>
           </div>
 
-            {/* Form per l'input dell'utente */}
-            <form onSubmit={handleSubmit} className="flex items-center justify-center mt-2 space-x-4">
-              {/* Campo di input arrotondato */}
-              <input
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                className="w-full px-6 py-3 rounded-full border border-gray-300 outline-none text-lg shadow-sm"
-                placeholder="Fai una domanda..."
-              />
-
-              {/* Bottone separato e arrotondato */}
-              <button
-                type="submit"
-                className="px-6 py-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-md transition"
-                disabled={isLoading}
-              >
-                {isLoading ? "..." : "Invia"}
-              </button>
-            </form>
+          {/* Form per l'input dell'utente */}
+          <form onSubmit={handleSubmit} className="flex items-center justify-center mt-2 space-x-4">
+            {/* Label con testo descrittivo per l'input */}
+            <label htmlFor="userInput" className="text-lg font-medium text-gray-700">
+              Fai una domanda:
+            </label>
+            <input
+              id="userInput"
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              className="w-full px-6 py-3 rounded-full border border-gray-300 outline-none text-lg shadow-sm"
+              placeholder="Fai una domanda..."
+              aria-label="Fai una domanda..."
+              title="Inserisci la tua domanda riguardo il meteo" // Optional title for accessibility
+            />
+            {/* Bottone separato e arrotondato */}
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-md transition"
+              disabled={isLoading}
+            >
+              {isLoading ? "..." : "Invia"}
+            </button>
+          </form>
         </div>
       </main>
     </div>
