@@ -39,7 +39,7 @@ const ChatPage: FC = () => {
         <div className="max-w-3xl w-full space-y-4">
           {/* Finestra della chat */}
           <div className="h-[500px] overflow-y-auto bg-white p-6 border rounded-lg shadow-lg relative">
-            {messages && messages.length > 0 ? (
+            {messages && messages.length > 0 &&
               messages.map((message, index) => (
                 <ChatMessage
                   key={index}
@@ -47,10 +47,7 @@ const ChatPage: FC = () => {
                   isLoading={isLoading && index === messages.length - 1}
                 />
               ))
-            ) : (
-              <div></div>
-            )}
-
+            }
             {/* Icona di sfondo (fulmine) */}
             {showIcon && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/3 pointer-events-none transition-opacity duration-700 ease-in-out">
