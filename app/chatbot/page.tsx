@@ -2,7 +2,7 @@
 import { useChat } from "ai/react";
 import { FC, useEffect, useState } from "react";
 
-// Componenti per mostrare i risultati dei tools
+// Componenti per mostrare i risultati dei tools per range date
 const WeatherDataCard: FC<{ data: any }> = ({ data }) => (
   <div className="bg-blue-100 p-4 rounded-lg my-2">
     <strong>Dati meteo attuali usando il json nuovo filtrato per range di date:</strong>
@@ -14,6 +14,20 @@ const WeatherHistoryCard: FC<{ data: any }> = ({ data }) => (
     <strong>Dati meteo attuali usando il json vecchio filtrato per range di date:</strong>
   </div>
 );
+
+// Card per i dati meteo filtrati per profondità
+const WeatherDataByDepthCardOld: FC<{ data: any }> = ({ data }) => (
+  <div className="bg-green-100 p-4 rounded-lg my-2">
+    <strong>Dati meteo filtrati per profondità usando il json vecchio:</strong>
+  </div>
+);
+
+const WeatherDataByDepthCardNew: FC<{ data: any }> = ({ data }) => (
+  <div className="bg-purple-100 p-4 rounded-lg my-2">
+    <strong>Dati meteo filtrati per profondità usando il json nuovo:</strong>
+  </div>
+);
+
 
 // Componente principale della chat
 const ChatPage: FC = () => {
@@ -84,7 +98,7 @@ const ChatPage: FC = () => {
           <form onSubmit={handleSubmit} className="flex items-center justify-center mt-2 space-x-4">
             {/* Label con testo descrittivo per l'input */}
             <label htmlFor="userInput" className="text-lg font-medium text-gray-700">
-ì            </label>
+            </label>
             <input
               id="userInput"
               type="text"
@@ -145,6 +159,8 @@ const ToolMessageContent: FC<{ message: any }> = ({ message }) => {
         if (state === "result") {
           if (toolName === "indexAPI") return <WeatherDataCard key={toolCallId} data={result} />;
           if (toolName === "indexAPIold") return <WeatherHistoryCard key={toolCallId} data={result} />;
+          if (toolName === "depthnew") return <WeatherDataByDepthCardNew key={toolCallId} data={result} />;
+          if (toolName === "depthold") return <WeatherDataByDepthCardOld key={toolCallId} data={result} />;
           return <div key={toolCallId}>Tool sconosciuto: {toolName}</div>;
         } else {
           return <div key={toolCallId}>Elaborazione in corso...</div>;

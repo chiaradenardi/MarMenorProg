@@ -1,7 +1,9 @@
 import { openai } from "@ai-sdk/openai";
 import { convertToCoreMessages, streamText } from "ai";
-import indexAPI from "@/app/tools/index_wet_new";
-import indexAPIold from "@/app/tools/index_wet_old";
+import indexAPI from "@/app/datarange_tools/index_wet_new";
+import indexAPIold from "@/app/datarange_tools/index_wet_old";
+import depthold from "@/app/depth_tools/index_depth_old";
+import depthnew from "@/app/depth_tools/index_depth_new";
 
 const model = openai("gpt-4o-mini");
 
@@ -21,7 +23,7 @@ const systemPrompt =
         model,
         system: systemPrompt,
         messages: convertToCoreMessages(body.messages),
-        tools: { indexAPIold }, // Inserire indexAPI per la risposta basata sul json nuovo 
+        tools: { depthnew }, // Inserire indexAPI per la risposta basata sul json nuovo 
         maxSteps: 3,
       });
   
