@@ -23,7 +23,7 @@ const systemPrompt =
         model,
         system: systemPrompt,
         messages: convertToCoreMessages(body.messages),
-        tools: { indexAPIold, depthold}, // Inserire indexAPI per la risposta basata sul json nuovo 
+        tools: { indexAPIold, depthold}, // Si può cambiare mettendo i due tools basati sul json nuovo
         maxSteps: 3,
       });
   
