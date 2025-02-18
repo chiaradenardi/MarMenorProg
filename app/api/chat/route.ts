@@ -9,7 +9,7 @@ const model = openai("gpt-4o-mini");
 
 // Prompt iniziale per il modello col suo comportamento
 const systemPrompt = 
-  "You are a friendly CLI interface with tools to fetch wet data on temperature. Use the tools indexAPI, indexAPIold, index_depth_new and index_depth_old to analyze wet data from different sources. Do not use symbols as # or * in the responses, be more fluid";
+  "You are a friendly CLI interface with tools to fetch wet data on temperature. Use the tools indexAPI, indexAPIold, index_depth_new and index_depth_old to analyze wet data from different sources. Do not use symbols as # or * in the responses";
 
   export const POST = async (req: Request) => {
     try {
@@ -23,7 +23,7 @@ const systemPrompt =
         model,
         system: systemPrompt,
         messages: convertToCoreMessages(body.messages),
-        tools: { depthnew }, // Inserire indexAPI per la risposta basata sul json nuovo 
+        tools: { indexAPIold, depthold}, // Inserire indexAPI per la risposta basata sul json nuovo 
         maxSteps: 3,
       });
   
