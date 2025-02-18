@@ -107,12 +107,12 @@ const Page = () => {
         <div className="mt-8">
           <h1 className="text-lg font-semibold mb-4 text-center">Dati Meteo</h1>
           <div className="overflow-x-auto">
-            <table className="table-auto w-full border-collapse border border-gray-300">
-              <thead>
+            <table className="table-auto w-full border-collapse border border-gray-300 text-xs sm:text-sm">
+            <thead>
                 <tr className="bg-blue-500 text-white">
-                  <th className="border border-gray-300 p-2">Giorno e Ora</th>
-                  <th className="border border-gray-300 p-2">Profondità (m)</th>
-                  <th className="border border-gray-300 p-2">Temperatura</th>
+                  <th className="border border-gray-300 p-2 sm:p-2">Giorno e Ora</th>
+                  <th className="border border-gray-300 p-2 sm:p-2">Profondità (m)</th>
+                  <th className="border border-gray-300 p-2 sm:p-2">Temperatura</th>
                 </tr>
               </thead>
               <tbody>
@@ -126,9 +126,9 @@ const Page = () => {
 
                     return (
                       <tr key={`${index}-${idx}`} className={rowColor}>
-                        <td className="border border-gray-300 p-2 text-center">{date} {time}</td>
-                        <td className="border border-gray-300 p-2 text-center">{value.z}</td>
-                        <td className="border border-gray-300 p-2 text-center">{value.value}</td>
+                        <td className="border border-gray-300 p-2 text-center sm:p-2 text-center">{date} {time}</td>
+                        <td className="border border-gray-300 p-2 text-center sm:p-2 text-center">{value.z}</td>
+                        <td className="border border-gray-300 p-2 text-center sm:p-2 text-center">{value.value}</td>
                       </tr>
                     );
                   })
