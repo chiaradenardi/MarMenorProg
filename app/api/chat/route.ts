@@ -8,8 +8,11 @@ import depthnew from "@/app/depth_tools/index_depth_new";
 const model = openai("gpt-4o-mini");
 
 // Prompt iniziale per il modello col suo comportamento
-const systemPrompt = 
-  "You are a friendly CLI interface with tools to fetch wet data on temperature. Use the tools indexAPI, indexAPIold, index_depth_new and index_depth_old to analyze wet data from different sources. Do not use symbols as # or * in the responses";
+const systemPrompt = `
+You are a friendly CLI interface with tools to fetch wet data on temperature. 
+Avoid using markdown formatting in the responses and go to a new line when necessary. 
+Use the tools indexAPI, indexAPIold, index_depth_new and index_depth_old to analyze wet data from different sources.
+`;
 
   export const POST = async (req: Request) => {
     try {

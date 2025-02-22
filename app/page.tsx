@@ -70,9 +70,10 @@ const Page = () => {
     <DateRangePicker
       ranges={[dateRange]}
       onChange={(item: any) => setDateRange(item.selection)}
-      className="w-full sm:w-[90%] max-w-[450px]"  // Impostiamo una larghezza massima e un valore di percentuale per mobile
+      className="w-full sm:w-[90%] max-w-[450px]" 
       showMonthAndYearPickers={false}
       showDateDisplay={false}
+      aria-label="Seleziona un intervallo di date"
     />
   </div>
 </div>
@@ -96,6 +97,7 @@ const Page = () => {
           <button
             onClick={toggleTableVisibility}
             className="bg-gray-400 text-white p-2 rounded"
+            aria-label="Mostra o nascondi la tabella dei dati"
           >
             {showTable ? "Nascondi Tabella" : "Mostra Tabella"}
           </button>
@@ -110,9 +112,9 @@ const Page = () => {
             <table className="table-auto w-full border-collapse border border-gray-300 text-xs sm:text-sm">
             <thead>
                 <tr className="bg-blue-500 text-white">
-                  <th className="border border-gray-300 p-2 sm:p-2">Giorno e Ora</th>
-                  <th className="border border-gray-300 p-2 sm:p-2">Profondità (m)</th>
-                  <th className="border border-gray-300 p-2 sm:p-2">Temperatura</th>
+                  <th className="border border-gray-300 p-2 sm:p-2 aria-label={`Data e ora: ${date} ${time}`}">Giorno e Ora</th>
+                  <th className="border border-gray-300 p-2 sm:p-2 aria-label={`Profondità: ${value.z} metri`}">Profondità (m)</th>
+                  <th className="border border-gray-300 p-2 sm:p-2 aria-label={`Temperatura: ${value.value} °C`}">Temperatura</th>
                 </tr>
               </thead>
               <tbody>

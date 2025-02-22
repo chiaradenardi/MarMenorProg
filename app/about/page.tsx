@@ -14,7 +14,11 @@ const About = () => {
                 <div className="md:w-2/3">
                     <h2 className="text-2xl font-semibold mb-2 text-blue-800">Un ecosistema straordinario</h2>
                     <p className="text-base text-gray-700">
-                    Il Mar Menor, una laguna salata di 135 chilometri quadrati e la più estesa d’Europa, situata nella regione spagnola di Murcia, era un tempo un ecosistema straordinario, rinomato per le sue acque cristalline e la ricca biodiversità. Questa laguna salmastra, separata dal Mediterraneo da una sottile lingua di terra, offriva un rifugio naturale a numerose specie marine e attirava turisti da tutto il mondo. Il paesaggio pittoresco, l'abbondanza di flora e fauna e il suo valore ecologico rendevano il Mar Menor una destinazione ideale per chi cercava tranquillità e bellezza naturale.
+                    Il Mar Menor, una laguna salata di 135 chilometri quadrati e la più estesa d’Europa, situata nella regione spagnola di Murcia, 
+                    era un tempo un ecosistema straordinario, rinomato per le sue acque cristalline e la ricca biodiversità. Questa laguna salmastra, 
+                    separata dal Mediterraneo da una sottile lingua di terra, offriva un rifugio naturale a numerose specie marine e attirava turisti da 
+                    tutto il mondo. Il paesaggio pittoresco, l'abbondanza di flora e fauna e il suo valore ecologico rendevano il Mar Menor una destinazione 
+                    ideale per chi cercava tranquillità e bellezza naturale.
                     </p>
                 </div>
             </div>
